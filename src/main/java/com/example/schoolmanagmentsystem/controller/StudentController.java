@@ -35,5 +35,16 @@ public class StudentController {
         StudentDTO student = studentService.getStudentById(id);
         return new ResponseEntity<>(student, HttpStatus.OK);
     }
-}
 
+    @PutMapping("/{id}")
+    public ResponseEntity<StudentDTO> updateStudent(@PathVariable Long id, @Valid @RequestBody StudentDTO studentDTO) {
+        StudentDTO updatedStudent = studentService.updateStudent(id, studentDTO);
+        return new ResponseEntity<>(updatedStudent, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+}

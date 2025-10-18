@@ -39,7 +39,31 @@ public class StudentService {
         return convertToDTO(student);
     }
 
+    public StudentDTO updateStudent(Long id, StudentDTO studentDTO) {
+        Student existingStudent = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
+        // Cập nhật các trường
+        existingStudent.setStudentCode(studentDTO.getStudentCode());
+        existingStudent.setName(studentDTO.getName());
+        existingStudent.setDateOfBirth(studentDTO.getDateOfBirth());
+        existingStudent.setPhone(studentDTO.getPhone());
+        existingStudent.setEmail(studentDTO.getEmail());
+        existingStudent.setGradeId(studentDTO.getGradeId());
+
+        if (studentDTO.getFacultyId() != null) {
+            Faculty faculty = facultyRepository.findById(studentDTO.getFacultyId())
+                    .orElseThrow(() -> new RuntimeException("Faculty not found"));
+            existingStudent.setFaculty(faculty);
+        }
+
+        Student updatedStudent = studentRepository.save(existingStudent);
+        return convertToDTO(updatedStudent);
+    }
+
+    public void deleteStudent(Long id) {
+        studentRepository.deleteById(id);
+    }
 
     private Student convertToEntity(StudentDTO dto) {
         Student student = new Student();
