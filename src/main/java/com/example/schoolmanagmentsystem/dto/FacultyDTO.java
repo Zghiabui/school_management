@@ -7,7 +7,7 @@ import lombok.Data;
 public class FacultyDTO {
     private Long facultyId;
 
-    @NotBlank(message = "Tên danh mục không được để trống")
+    @NotBlank(message = "Tên khoa không được để trống")
     private String facultyName;
     private String dean;
     private String phone;
