@@ -30,7 +30,6 @@ public class StudentController {
         return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<StudentDTO> getStudentById(@PathVariable Long id) {
         StudentDTO student = studentService.getStudentById(id);
