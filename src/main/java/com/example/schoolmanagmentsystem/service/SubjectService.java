@@ -7,6 +7,7 @@ import com.example.schoolmanagmentsystem.repository.FacultyRepository;
 import com.example.schoolmanagmentsystem.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,10 @@ public class SubjectService {
         return convertToDTO(updated);
     }
 
+    public void deleteSubject(Long id) {
+        subjectRepository.deleteById(id);
+    }
+
     private Subject convertToEntity(SubjectDTO dto) {
         Subject subject = new Subject();
         subject.setSubjectName(dto.getSubjectName());
@@ -81,6 +86,7 @@ public class SubjectService {
             dto.setFacultyId(subject.getFaculty().getFacultyId());
             dto.setFacultyName(subject.getFaculty().getFacultyName());
         }
+
         return dto;
     }
 }

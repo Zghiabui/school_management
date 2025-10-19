@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -39,7 +40,17 @@ public class SubjectController {
     public ResponseEntity<SubjectDTO> updateSubject(
             @PathVariable Long id,
             @Valid @RequestBody SubjectDTO subjectDTO) {
+
         SubjectDTO updated = subjectService.updateSubject(id, subjectDTO);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSubject(@PathVariable Long id) {
+        subjectService.deleteSubject(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+
 }
