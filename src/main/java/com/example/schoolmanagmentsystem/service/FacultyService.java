@@ -6,6 +6,9 @@ import com.example.schoolmanagmentsystem.repository.FacultyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class FacultyService {
 
@@ -16,6 +19,22 @@ public class FacultyService {
         Faculty faculty = convertToEntity(facultyDTO);
         Faculty savedFaculty = facultyRepository.save(faculty);
         return convertToDTO(savedFaculty);
+    }
+
+    public List<FacultyDTO> getAllFaculty() {
+        return facultyRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public FacultyDTO getFacultyById(Long id) {
+        Faculty faculty = findFacultyById(id);
+        return convertToDTO(faculty);
+    }
+
+    private Faculty findFacultyById(Long id) {
+        return facultyRepository.findById(id).orElse(null);
+
     }
 
     private Faculty convertToEntity(FacultyDTO dto) {
