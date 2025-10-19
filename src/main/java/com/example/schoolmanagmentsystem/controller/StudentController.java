@@ -48,3 +48,5 @@ public class StudentController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
+}
+

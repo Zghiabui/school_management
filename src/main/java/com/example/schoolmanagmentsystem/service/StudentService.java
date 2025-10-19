@@ -65,6 +65,7 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
+
     private Student convertToEntity(StudentDTO dto) {
         Student student = new Student();
         student.setStudentCode(dto.getStudentCode());
@@ -96,4 +97,5 @@ public class StudentService {
         dto.setGradeId(student.getGradeId());
         return dto;
     }
+}
 }
