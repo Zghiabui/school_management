@@ -49,6 +49,15 @@ public class FacultyService {
         return convertToDTO(updatedFaculty);
     }
 
+    public FacultyDTO deleteFaculty(Long id) {
+        Faculty faculty = findFacultyById(id);
+        if (!facultyRepository.existsById(id)) {
+            throw new RuntimeException("Không tìm thấy khoa với ID: " + id);
+        }
+        facultyRepository.delete(faculty);
+        return convertToDTO(faculty);
+    }
+
     private Faculty convertToEntity(FacultyDTO dto) {
         Faculty faculty = new Faculty();
         faculty.setFacultyName(dto.getFacultyName());
