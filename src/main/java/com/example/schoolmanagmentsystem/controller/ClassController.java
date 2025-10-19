@@ -1,4 +1,38 @@
 package com.example.schoolmanagmentsystem.controller;
 
+import com.example.schoolmanagmentsystem.dto.ClassDTO;
+import com.example.schoolmanagmentsystem.service.ClassService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@CrossOrigin(origins = {"http://localhost:3000"})
+@RestController
+@RequestMapping("/classes")
 public class ClassController {
+
+    @Autowired
+    private ClassService classService;
+
+    @PostMapping
+    public ResponseEntity<ClassDTO> createClass(@Valid @RequestBody ClassDTO classDTO) {
+        ClassDTO createdClass = classService.createClass(classDTO);
+        return new ResponseEntity<>(createdClass, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ClassDTO>> getAllClasses() {
+        List<ClassDTO> classes = classService.getAllClasses();
+        return new ResponseEntity<>(classes, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ClassDTO> getClassById(@PathVariable Long id) {
+        ClassDTO classDTO = classService.getClassById(id);
+        return new ResponseEntity<>(classDTO, HttpStatus.OK);
+    }
 }
