@@ -7,7 +7,6 @@ import com.example.schoolmanagmentsystem.repository.FacultyRepository;
 import com.example.schoolmanagmentsystem.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,7 +81,6 @@ public class SubjectService {
             dto.setFacultyId(subject.getFaculty().getFacultyId());
             dto.setFacultyName(subject.getFaculty().getFacultyName());
         }
-
         return dto;
     }
 }
