@@ -38,3 +38,4 @@ public class Class {
     @Column(length = 100)
     private String schedule;
 }
+
