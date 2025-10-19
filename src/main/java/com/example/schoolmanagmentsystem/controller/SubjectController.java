@@ -36,4 +36,12 @@ public class SubjectController {
         return new ResponseEntity<>(SubjectDTO, HttpStatus.OK);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<SubjectDTO> updateSubject(
+            @PathVariable Long id,
+            @Valid @RequestBody SubjectDTO subjectDTO) {
+
+        SubjectDTO updated = subjectService.updateSubject(id, subjectDTO);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
+    }
 }
