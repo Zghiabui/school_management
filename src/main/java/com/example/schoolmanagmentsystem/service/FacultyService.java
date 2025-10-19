@@ -37,6 +37,27 @@ public class FacultyService {
 
     }
 
+    public FacultyDTO updateFaculty(Long id, FacultyDTO facultyDTO) {
+        Faculty Faculty = facultyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khoa!"));
+
+        Faculty.setFacultyName(facultyDTO.getFacultyName());
+        Faculty.setDean(facultyDTO.getDean());
+        Faculty.setPhone(facultyDTO.getPhone());
+        Faculty.setEmail(facultyDTO.getEmail());
+        Faculty updatedFaculty = facultyRepository.save(Faculty);
+        return convertToDTO(updatedFaculty);
+    }
+
+    public FacultyDTO deleteFaculty(Long id) {
+        Faculty faculty = findFacultyById(id);
+        if (!facultyRepository.existsById(id)) {
+            throw new RuntimeException("Không tìm thấy khoa với ID: " + id);
+        }
+        facultyRepository.delete(faculty);
+        return convertToDTO(faculty);
+    }
+
     private Faculty convertToEntity(FacultyDTO dto) {
         Faculty faculty = new Faculty();
         faculty.setFacultyName(dto.getFacultyName());
