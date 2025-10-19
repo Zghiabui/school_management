@@ -25,7 +25,7 @@ public class Faculty {
     @NotBlank(message = "Dean name is required")
     private String dean;
 
-    @Pattern(regexp = "^\\d{10}$", message = "Phone must be 10 digits bắt đầu bằng số 0")
+    @Pattern(regexp = "^0\\d{9}$", message = "Phone must be 10 digits and start is 0")
     private String phone;
 
     @Email(message = "Email should be valid")
