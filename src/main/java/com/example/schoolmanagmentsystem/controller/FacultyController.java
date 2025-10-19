@@ -1,6 +1,7 @@
 package com.example.schoolmanagmentsystem.controller;
 
 import com.example.schoolmanagmentsystem.dto.FacultyDTO;
+import com.example.schoolmanagmentsystem.entity.Faculty;
 import com.example.schoolmanagmentsystem.service.FacultyService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +32,13 @@ public class FacultyController {
     @GetMapping("/{id}")
     public ResponseEntity<FacultyDTO> getFacultyById(@PathVariable Long id) {
         return ResponseEntity.ok(facultyService.getFacultyById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<FacultyDTO> updateFaculty(@PathVariable Long id, @RequestBody FacultyDTO facultyDTO) {
+
+        FacultyDTO updatedFaculty = facultyService.updateFaculty(id, facultyDTO);
+
+        return ResponseEntity.ok(updatedFaculty);
     }
 }
