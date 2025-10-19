@@ -8,6 +8,10 @@ import com.example.schoolmanagmentsystem.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+
 @Service
 public class SubjectService {
 
@@ -21,6 +25,19 @@ public class SubjectService {
         Subject subject = convertToEntity(subjectDTO);
         Subject savedSubject = subjectRepository.save(subject);
         return convertToDTO(savedSubject);
+    }
+
+    public List<SubjectDTO> getAllSubjects() {
+        return subjectRepository.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public SubjectDTO getSubjectById(Long id) {
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy môn học"));
+        return convertToDTO(subject);
     }
 
     private Subject convertToEntity(SubjectDTO dto) {
