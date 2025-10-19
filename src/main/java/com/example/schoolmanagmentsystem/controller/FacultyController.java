@@ -22,4 +22,14 @@ public class FacultyController {
         FacultyDTO createdFaculty = facultyService.createFaculty(facultyDTO);
         return new ResponseEntity<>(createdFaculty, HttpStatus.CREATED);
     }
+
+    @GetMapping
+    public List<FacultyDTO> getAllFaculties() {
+        return facultyService.getAllFaculty();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<FacultyDTO> getFacultyById(@PathVariable Long id) {
+        return ResponseEntity.ok(facultyService.getFacultyById(id));
+    }
 }
