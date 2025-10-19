@@ -1,7 +1,5 @@
 package com.example.schoolmanagmentsystem.repository;
 
-import com.example.schoolmanagmentsystem.entity.Faculty;
-
 import com.example.schoolmanagmentsystem.entity.Subject;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
