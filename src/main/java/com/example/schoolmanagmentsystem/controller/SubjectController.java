@@ -36,4 +36,21 @@ public class SubjectController {
         return new ResponseEntity<>(SubjectDTO, HttpStatus.OK);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<SubjectDTO> updateSubject(
+            @PathVariable Long id,
+            @Valid @RequestBody SubjectDTO subjectDTO) {
+
+        SubjectDTO updated = subjectService.updateSubject(id, subjectDTO);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSubject(@PathVariable Long id) {
+        subjectService.deleteSubject(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+
 }
