@@ -12,7 +12,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/api/subjects")
+@RequestMapping("/subjects")
 public class SubjectController {
 
     @Autowired
@@ -23,4 +23,34 @@ public class SubjectController {
         SubjectDTO createdSubject = subjectService.createSubject(subjectDTO);
         return new ResponseEntity<>(createdSubject, HttpStatus.CREATED);
     }
+
+    @GetMapping
+    public ResponseEntity<List<SubjectDTO>> getAllSubjects() {
+        List<SubjectDTO> Subjects = subjectService.getAllSubjects();
+        return new ResponseEntity<>(Subjects, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SubjectDTO> getSubjectById(@PathVariable Long id) {
+        SubjectDTO SubjectDTO = subjectService.getSubjectById(id);
+        return new ResponseEntity<>(SubjectDTO, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SubjectDTO> updateSubject(
+            @PathVariable Long id,
+            @Valid @RequestBody SubjectDTO subjectDTO) {
+
+        SubjectDTO updated = subjectService.updateSubject(id, subjectDTO);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSubject(@PathVariable Long id) {
+        subjectService.deleteSubject(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+
 }
