@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 public class SubjectService {
 
@@ -23,8 +22,8 @@ public class SubjectService {
 
     public SubjectDTO createSubject(SubjectDTO subjectDTO) {
         Subject subject = convertToEntity(subjectDTO);
-        Subject savedSubject = subjectRepository.save(subject);
-        return convertToDTO(savedSubject);
+        Subject saved = subjectRepository.save(subject);
+        return convertToDTO(saved);
     }
 
     public List<SubjectDTO> getAllSubjects() {
@@ -36,8 +35,30 @@ public class SubjectService {
 
     public SubjectDTO getSubjectById(Long id) {
         Subject subject = subjectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy môn học"));
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
         return convertToDTO(subject);
+    }
+
+    public SubjectDTO updateSubject(Long id, SubjectDTO dto) {
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        subject.setSubjectName(dto.getSubjectName());
+        subject.setCredits(dto.getCredits());
+        subject.setDescription(dto.getDescription());
+
+        if (dto.getFacultyId() != null) {
+            Faculty faculty = facultyRepository.findById(dto.getFacultyId())
+                    .orElseThrow(() -> new RuntimeException("Faculty not found"));
+            subject.setFaculty(faculty);
+        }
+
+        Subject updated = subjectRepository.save(subject);
+        return convertToDTO(updated);
+    }
+
+    public void deleteSubject(Long id) {
+        subjectRepository.deleteById(id);
     }
 
     private Subject convertToEntity(SubjectDTO dto) {
@@ -46,10 +67,11 @@ public class SubjectService {
         subject.setCredits(dto.getCredits());
         subject.setDescription(dto.getDescription());
 
-        Faculty faculty = facultyRepository.findById(dto.getFacultyId())
-                .orElseThrow(() -> new IllegalArgumentException("Khoa không tồn tại với ID: " + dto.getFacultyId()));
-        subject.setFaculty(faculty);
-
+        if (dto.getFacultyId() != null) {
+            Faculty faculty = facultyRepository.findById(dto.getFacultyId())
+                    .orElseThrow(() -> new RuntimeException("Faculty not found"));
+            subject.setFaculty(faculty);
+        }
         return subject;
     }
 
@@ -60,8 +82,10 @@ public class SubjectService {
         dto.setCredits(subject.getCredits());
         dto.setDescription(subject.getDescription());
 
-        dto.setFacultyId(subject.getFaculty().getFacultyId());
-        dto.setFacultyName(subject.getFaculty().getFacultyName());
+        if (subject.getFaculty() != null) {
+            dto.setFacultyId(subject.getFaculty().getFacultyId());
+            dto.setFacultyName(subject.getFaculty().getFacultyName());
+        }
 
         return dto;
     }
