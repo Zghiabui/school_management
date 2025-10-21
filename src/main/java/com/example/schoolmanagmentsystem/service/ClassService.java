@@ -63,6 +63,13 @@ public class ClassService {
     }
 
 
+    public void deleteClass(Long id) {
+        if (!classRepository.existsById(id)) {
+            throw new RuntimeException("Class not found");
+        }
+        classRepository.deleteById(id);
+    }
+
     private Class convertToEntity(ClassDTO dto) {
         Class entity = new Class();
         entity.setSemester(dto.getSemester());

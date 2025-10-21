@@ -42,5 +42,10 @@ public class ClassController {
         return new ResponseEntity<>(updatedClass, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ClassDTO> deleteClass(@PathVariable Long id) {
+        classService.deleteClass(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
 }
