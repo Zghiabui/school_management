@@ -21,9 +21,9 @@ public class ClassService {
     private SubjectRepository subjectRepository;
 
     public ClassDTO createClass(ClassDTO classDTO) {
-        Class classEntity = convertToEntity(classDTO);
-        Class savedClass = classRepository.save(classEntity);
-        return convertToDTO(savedClass);
+        Class entity = convertToEntity(classDTO);
+        Class saved = classRepository.save(entity);
+        return convertToDTO(saved);
     }
 
     public List<ClassDTO> getAllClasses() {
@@ -34,42 +34,64 @@ public class ClassService {
     }
 
     public ClassDTO getClassById(Long id) {
-        Class classEntity = classRepository.findById(id)
+        Class entity = classRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Class not found"));
-        return convertToDTO(classEntity);
+        return convertToDTO(entity);
     }
 
+    public ClassDTO updateClass(Long id, ClassDTO classDTO) {
+        Class existing = classRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Class not found"));
+
+        // cập nhật thuộc tính cơ bản
+        existing.setSemester(classDTO.getSemester());
+        existing.setAcademicYear(classDTO.getAcademicYear());
+        existing.setRoom(classDTO.getRoom());
+        existing.setSchedule(classDTO.getSchedule());
+        existing.setTeacherId(classDTO.getTeacherId());
+
+        if (classDTO.getSubjectId() != null) {
+            Subject subject = subjectRepository.findById(classDTO.getSubjectId())
+                    .orElseThrow(() -> new RuntimeException("Subject not found"));
+            existing.setSubject(subject);
+        } else {
+            existing.setSubject(null);
+        }
+
+        Class updated = classRepository.save(existing);
+        return convertToDTO(updated);
+    }
+
+
     private Class convertToEntity(ClassDTO dto) {
-        Class classEntity = new Class();
-        classEntity.setSemester(dto.getSemester());
-        classEntity.setAcademicYear(dto.getAcademicYear());
-        classEntity.setRoom(dto.getRoom());
-        classEntity.setSchedule(dto.getSchedule());
+        Class entity = new Class();
+        entity.setSemester(dto.getSemester());
+        entity.setAcademicYear(dto.getAcademicYear());
+        entity.setRoom(dto.getRoom());
+        entity.setSchedule(dto.getSchedule());
+        entity.setTeacherId(dto.getTeacherId());
 
         if (dto.getSubjectId() != null) {
             Subject subject = subjectRepository.findById(dto.getSubjectId())
                     .orElseThrow(() -> new RuntimeException("Subject not found"));
-            classEntity.setSubject(subject);
+            entity.setSubject(subject);
         }
-        classEntity.setTeacherId(dto.getTeacherId());
-
-        return classEntity;
+        return entity;
     }
 
-    private ClassDTO convertToDTO(Class classEntity) {
+    private ClassDTO convertToDTO(Class entity) {
         ClassDTO dto = new ClassDTO();
-        dto.setClassId(classEntity.getClassId());
-        dto.setSemester(classEntity.getSemester());
-        dto.setAcademicYear(classEntity.getAcademicYear());
-        dto.setRoom(classEntity.getRoom());
-        dto.setSchedule(classEntity.getSchedule());
+        dto.setClassId(entity.getClassId());
+        dto.setSemester(entity.getSemester());
+        dto.setAcademicYear(entity.getAcademicYear());
+        dto.setRoom(entity.getRoom());
+        dto.setSchedule(entity.getSchedule());
+        dto.setTeacherId(entity.getTeacherId());
 
-        if (classEntity.getSubject() != null) {
-            dto.setSubjectId(classEntity.getSubject().getSubjectId());
-            dto.setSubjectName(classEntity.getSubject().getSubjectName());
+        if (entity.getSubject() != null) {
+            dto.setSubjectId(entity.getSubject().getSubjectId());
+            dto.setSubjectName(entity.getSubject().getSubjectName()); // tiện cho FE hiển thị
         }
-        dto.setTeacherId(classEntity.getTeacherId());
-
         return dto;
     }
 }
