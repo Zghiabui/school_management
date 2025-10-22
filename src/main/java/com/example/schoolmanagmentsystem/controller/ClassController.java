@@ -35,4 +35,12 @@ public class ClassController {
         ClassDTO classDTO = classService.getClassById(id);
         return new ResponseEntity<>(classDTO, HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ClassDTO> updateClass(@PathVariable Long id, @Valid @RequestBody ClassDTO classDTO) {
+        ClassDTO updatedClass = classService.updateClass(id, classDTO);
+        return new ResponseEntity<>(updatedClass, HttpStatus.OK);
+    }
+
+
 }
