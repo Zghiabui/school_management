@@ -45,7 +45,7 @@ public class Student {
     @Column(length = 100)
     private String email;
 
-    @Size(max = 100, message = "Mã lớp không được vượt quá 100 ký tự")
-    @Column(name = "grade_id", length = 100)
-    private String gradeId;
+    @ManyToOne
+    @JoinColumn(name = "class_id")
+    private Class clazz;
 }

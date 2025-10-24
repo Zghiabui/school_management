@@ -1,8 +1,10 @@
 package com.example.schoolmanagmentsystem.service;
 
 import com.example.schoolmanagmentsystem.dto.StudentDTO;
+import com.example.schoolmanagmentsystem.entity.Class;
 import com.example.schoolmanagmentsystem.entity.Faculty;
 import com.example.schoolmanagmentsystem.entity.Student;
+import com.example.schoolmanagmentsystem.repository.ClassRepository;
 import com.example.schoolmanagmentsystem.repository.FacultyRepository;
 import com.example.schoolmanagmentsystem.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class StudentService {
 
     @Autowired
     private FacultyRepository facultyRepository;
+
+    @Autowired
+    private ClassRepository classRepository;
 
     public StudentDTO createStudent(StudentDTO studentDTO) {
         Student student = convertToEntity(studentDTO);
@@ -49,12 +54,17 @@ public class StudentService {
         existingStudent.setDateOfBirth(studentDTO.getDateOfBirth());
         existingStudent.setPhone(studentDTO.getPhone());
         existingStudent.setEmail(studentDTO.getEmail());
-        existingStudent.setGradeId(studentDTO.getGradeId());
 
         if (studentDTO.getFacultyId() != null) {
             Faculty faculty = facultyRepository.findById(studentDTO.getFacultyId())
                     .orElseThrow(() -> new RuntimeException("Faculty not found"));
             existingStudent.setFaculty(faculty);
+        }
+
+        if (studentDTO.getClassId() != null) {
+            Class clazz = classRepository.findById(studentDTO.getClassId())
+                    .orElseThrow(() -> new RuntimeException("Class not found"));
+            existingStudent.setClazz(clazz);
         }
 
         Student updatedStudent = studentRepository.save(existingStudent);
@@ -76,9 +86,13 @@ public class StudentService {
                     .orElseThrow(() -> new RuntimeException("Faculty not found"));
             student.setFaculty(faculty);
         }
+        if (dto.getClassId() != null) {
+            Class clazz = classRepository.findById(dto.getClassId())
+                    .orElseThrow(() -> new RuntimeException("Class not found"));
+            student.setClazz(clazz);
+        }
         student.setPhone(dto.getPhone());
         student.setEmail(dto.getEmail());
-        student.setGradeId(dto.getGradeId());
         return student;
     }
 
@@ -92,9 +106,12 @@ public class StudentService {
             dto.setFacultyId(student.getFaculty().getFacultyId());
             dto.setFacultyName(student.getFaculty().getFacultyName());
         }
+        if (student.getClazz() != null) {
+            dto.setClassId(student.getClazz().getClassId());
+            dto.setClassName(student.getClazz().getSubject().getSubjectName()); // Corrected field name
+        }
         dto.setPhone(student.getPhone());
         dto.setEmail(student.getEmail());
-        dto.setGradeId(student.getGradeId());
         return dto;
     }
 }
