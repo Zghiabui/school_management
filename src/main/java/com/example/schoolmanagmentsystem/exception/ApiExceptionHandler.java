@@ -1,6 +1,7 @@
 package com.example.schoolmanagmentsystem.exception;
 
 import org.springframework.http.*;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -25,4 +26,16 @@ public class ApiExceptionHandler {
                         "message", ex.getMessage()
                 ));
     }
+
+
+    @ExceptionHandler(DuplicateDataException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicate(DuplicateDataException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "error", "DUPLICATE_DATA",
+                        "message", ex.getMessage()
+                ));
+    }
+
+
 }
