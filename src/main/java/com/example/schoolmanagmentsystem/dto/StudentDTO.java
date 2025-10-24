@@ -33,5 +33,7 @@ public class StudentDTO {
     @Email(message = "Email không hợp lệ")
     private String email;
 
-    private String gradeId;
+    private Long classId;
+
+    private String className;
 }
