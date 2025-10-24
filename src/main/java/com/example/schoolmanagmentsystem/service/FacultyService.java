@@ -2,7 +2,9 @@ package com.example.schoolmanagmentsystem.service;
 
 import com.example.schoolmanagmentsystem.dto.FacultyDTO;
 import com.example.schoolmanagmentsystem.entity.Faculty;
+import com.example.schoolmanagmentsystem.exception.DuplicateDataException;
 import com.example.schoolmanagmentsystem.repository.FacultyRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,13 @@ public class FacultyService {
     @Autowired
     private FacultyRepository facultyRepository;
 
+    @Transactional
     public FacultyDTO createFaculty(FacultyDTO facultyDTO) {
+
+        if (facultyRepository.existsByFacultyName(facultyDTO.getFacultyName())) {
+            throw new DuplicateDataException("Tên khoa đã tồn tại trong hệ thống!");
+        }
+
         Faculty faculty = convertToEntity(facultyDTO);
         Faculty savedFaculty = facultyRepository.save(faculty);
         return convertToDTO(savedFaculty);
