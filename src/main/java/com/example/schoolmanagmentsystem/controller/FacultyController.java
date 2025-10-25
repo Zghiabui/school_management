@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
-@RequestMapping("/api/faculties") // <-- LỖI CHÍNH ĐÃ SỬA
+@RequestMapping("/faculties") // <-- LỖI CHÍNH ĐÃ SỬA
 @CrossOrigin(origins = "http://localhost:3000") // Đảm bảo React của bạn chạy ở port 3000
 public class FacultyController {
 
