@@ -1,7 +1,7 @@
 package com.example.schoolmanagmentsystem.controller;
 
 import com.example.schoolmanagmentsystem.dto.FacultyDTO;
-import com.example.schoolmanagmentsystem.entity.Faculty;
+// import com.example.schoolmanagmentsystem.entity.Faculty; // (Không cần import này)
 import com.example.schoolmanagmentsystem.service.FacultyService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/faculties")
+@RequestMapping("/api/faculties") // <-- LỖI CHÍNH ĐÃ SỬA
+@CrossOrigin(origins = "http://localhost:3000") // Đảm bảo React của bạn chạy ở port 3000
 public class FacultyController {
 
     @Autowired
@@ -26,8 +26,8 @@ public class FacultyController {
     }
 
     @GetMapping
-    public List<FacultyDTO> getAllFaculties() {
-        return facultyService.getAllFaculty();
+    public ResponseEntity<List<FacultyDTO>> getAllFaculties() { // <-- Nên trả về ResponseEntity
+        return ResponseEntity.ok(facultyService.getAllFaculty());
     }
 
     @GetMapping("/{id}")
@@ -36,16 +36,15 @@ public class FacultyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FacultyDTO> updateFaculty(@PathVariable Long id, @RequestBody FacultyDTO facultyDTO) {
-
+    public ResponseEntity<FacultyDTO> updateFaculty(@PathVariable Long id,
+                                                    @Valid @RequestBody FacultyDTO facultyDTO) { // <-- THÊM @Valid
         FacultyDTO updatedFaculty = facultyService.updateFaculty(id, facultyDTO);
-
         return ResponseEntity.ok(updatedFaculty);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFaculty(@PathVariable Long id) {
-        facultyService.deleteFaculty(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<FacultyDTO> deleteFaculty(@PathVariable Long id) { // <-- SỬA: Trả về DTO
+        FacultyDTO deletedFaculty = facultyService.deleteFaculty(id);
+        return ResponseEntity.ok(deletedFaculty); // <-- SỬA: Trả về đối tượng đã xóa
     }
 }
