@@ -4,11 +4,13 @@ import com.example.schoolmanagmentsystem.dto.FacultyDTO;
 import com.example.schoolmanagmentsystem.entity.Faculty;
 import com.example.schoolmanagmentsystem.exception.DuplicateDataException;
 import com.example.schoolmanagmentsystem.repository.FacultyRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,9 +21,8 @@ public class FacultyService {
 
     @Transactional
     public FacultyDTO createFaculty(FacultyDTO facultyDTO) {
-
         if (facultyRepository.existsByFacultyName(facultyDTO.getFacultyName())) {
-            throw new DuplicateDataException("Tên khoa đã tồn tại trong hệ thống!");
+            throw new DuplicateDataException("Tên khoa '" + facultyDTO.getFacultyName() + "' đã tồn tại!");
         }
 
         Faculty faculty = convertToEntity(facultyDTO);
@@ -36,32 +37,42 @@ public class FacultyService {
     }
 
     public FacultyDTO getFacultyById(Long id) {
+        // findFacultyById bây giờ sẽ ném 404 nếu không tìm thấy
         Faculty faculty = findFacultyById(id);
         return convertToDTO(faculty);
     }
 
-    private Faculty findFacultyById(Long id) {
-        return facultyRepository.findById(id).orElse(null);
 
+    private Faculty findFacultyById(Long id) {
+        return facultyRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khoa với ID: " + id));
     }
 
+    @Transactional // Thêm @Transactional cho nghiệp vụ update
     public FacultyDTO updateFaculty(Long id, FacultyDTO facultyDTO) {
-        Faculty Faculty = facultyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khoa!"));
 
-        Faculty.setFacultyName(facultyDTO.getFacultyName());
-        Faculty.setDean(facultyDTO.getDean());
-        Faculty.setPhone(facultyDTO.getPhone());
-        Faculty.setEmail(facultyDTO.getEmail());
-        Faculty updatedFaculty = facultyRepository.save(Faculty);
+        Faculty existingFaculty = findFacultyById(id);
+
+        if (facultyDTO.getFacultyName() != null &&
+                !Objects.equals(existingFaculty.getFacultyName(), facultyDTO.getFacultyName()) &&
+                facultyRepository.existsByFacultyName(facultyDTO.getFacultyName())) {
+
+            throw new DuplicateDataException("Tên khoa '" + facultyDTO.getFacultyName() + "' đã tồn tại!");
+        }
+        existingFaculty.setFacultyName(facultyDTO.getFacultyName());
+        existingFaculty.setDean(facultyDTO.getDean());
+        existingFaculty.setPhone(facultyDTO.getPhone());
+        existingFaculty.setEmail(facultyDTO.getEmail());
+        existingFaculty.setDescription(facultyDTO.getDescription());
+        existingFaculty.setAddress(facultyDTO.getAddress());
+
+        Faculty updatedFaculty = facultyRepository.save(existingFaculty);
         return convertToDTO(updatedFaculty);
     }
 
+    @Transactional
     public FacultyDTO deleteFaculty(Long id) {
         Faculty faculty = findFacultyById(id);
-        if (!facultyRepository.existsById(id)) {
-            throw new RuntimeException("Không tìm thấy khoa với ID: " + id);
-        }
         facultyRepository.delete(faculty);
         return convertToDTO(faculty);
     }
