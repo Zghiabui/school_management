@@ -3,15 +3,16 @@ package com.example.schoolmanagmentsystem.service;
 import com.example.schoolmanagmentsystem.dto.ClassDTO;
 import com.example.schoolmanagmentsystem.entity.Class;
 import com.example.schoolmanagmentsystem.entity.Subject;
-import com.example.schoolmanagmentsystem.exception.RoomTimeConflictException; // <-- tạo theo hướng dẫn trước
+import com.example.schoolmanagmentsystem.exception.RoomTimeConflictException;
 import com.example.schoolmanagmentsystem.repository.ClassRepository;
 import com.example.schoolmanagmentsystem.repository.SubjectRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,16 +25,22 @@ public class ClassService {
     private SubjectRepository subjectRepository;
 
     /* ==================== CREATE ==================== */
-
+    @Transactional
     public ClassDTO createClass(ClassDTO classDTO) {
-        validate(classDTO, null); // ⬅️ kiểm tra chồng lấn trước khi lưu
+        validate(classDTO, null); // kiểm tra chồng lấn trước khi lưu
         Class entity = convertToEntity(classDTO);
+
+        // gắn Subject nếu có
+        if (classDTO.getSubjectId() != null) {
+            Subject subject = findSubjectById(classDTO.getSubjectId());
+            entity.setSubject(subject);
+        }
+
         Class saved = classRepository.save(entity);
         return convertToDTO(saved);
     }
 
     /* ==================== READ ==================== */
-
     public List<ClassDTO> getAllClasses() {
         return classRepository.findAll()
                 .stream()
@@ -42,19 +49,27 @@ public class ClassService {
     }
 
     public ClassDTO getClassById(Long id) {
-        Class entity = classRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Class not found"));
+        Class entity = findClassById(id);
         return convertToDTO(entity);
     }
 
-    /* ==================== UPDATE ==================== */
+    private Class findClassById(Long id) {
+        return classRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy lớp với ID: " + id));
+    }
 
+    private Subject findSubjectById(Long id) {
+        return subjectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy môn học với ID: " + id));
+    }
+
+    /* ==================== UPDATE ==================== */
+    @Transactional
     public ClassDTO updateClass(Long id, ClassDTO classDTO) {
         // validate trước (excludeId = id để bỏ qua chính nó)
         validate(classDTO, id);
 
-        Class existing = classRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Class not found"));
+        Class existing = findClassById(id);
 
         // cập nhật thuộc tính cơ bản
         existing.setSemester(classDTO.getSemester());
@@ -63,14 +78,13 @@ public class ClassService {
         existing.setSchedule(classDTO.getSchedule());
         existing.setTeacherId(classDTO.getTeacherId());
 
-        // 3 field mới để kiểm tra trùng giờ
+        // các field kiểm tra giờ
         existing.setDayOfWeek(classDTO.getDayOfWeek());
         existing.setStartTime(classDTO.getStartTime());
         existing.setEndTime(classDTO.getEndTime());
 
         if (classDTO.getSubjectId() != null) {
-            Subject subject = subjectRepository.findById(classDTO.getSubjectId())
-                    .orElseThrow(() -> new NoSuchElementException("Subject not found"));
+            Subject subject = findSubjectById(classDTO.getSubjectId());
             existing.setSubject(subject);
         } else {
             existing.setSubject(null);
@@ -81,16 +95,14 @@ public class ClassService {
     }
 
     /* ==================== DELETE ==================== */
-
-    public void deleteClass(Long id) {
-        if (!classRepository.existsById(id)) {
-            throw new NoSuchElementException("Class not found");
-        }
-        classRepository.deleteById(id);
+    @Transactional
+    public ClassDTO deleteClass(Long id) {
+        Class entity = findClassById(id);
+        classRepository.delete(entity);
+        return convertToDTO(entity);
     }
 
     /* ==================== VALIDATION ==================== */
-
     private void validate(ClassDTO dto, Long excludeId) {
         // 1) Kiểm tra input bắt buộc
         if (dto.getDayOfWeek() == null)
@@ -112,7 +124,7 @@ public class ClassService {
             throw new IllegalArgumentException("Giờ bắt đầu phải trước giờ kết thúc");
         }
 
-        // 3) Kiểm tra chồng lấn (overlap) trong cùng phòng/ngày/năm/kỳ
+        // 3) Kiểm tra chồng lấn (overlap) cùng phòng/ngày/năm/kỳ
         boolean overlapped = classRepository.existsOverlap(
                 dto.getRoom(),
                 dto.getDayOfWeek(),
@@ -123,7 +135,6 @@ public class ClassService {
         );
 
         if (overlapped) {
-            // dùng RuntimeException nếu bạn chưa tạo RoomTimeConflictException
             throw new RoomTimeConflictException(
                     "Phòng %s đã có lớp trong khoảng %s–%s (ngày %d, %s, %s)"
                             .formatted(dto.getRoom(), start, end,
@@ -132,7 +143,6 @@ public class ClassService {
     }
 
     /* ==================== MAPPING ==================== */
-
     private Class convertToEntity(ClassDTO dto) {
         Class entity = new Class();
         entity.setSemester(dto.getSemester());
@@ -141,16 +151,11 @@ public class ClassService {
         entity.setSchedule(dto.getSchedule());
         entity.setTeacherId(dto.getTeacherId());
 
-        // 3 field mới
         entity.setDayOfWeek(dto.getDayOfWeek());
         entity.setStartTime(dto.getStartTime());
         entity.setEndTime(dto.getEndTime());
 
-        if (dto.getSubjectId() != null) {
-            Subject subject = subjectRepository.findById(dto.getSubjectId())
-                    .orElseThrow(() -> new NoSuchElementException("Subject not found"));
-            entity.setSubject(subject);
-        }
+        // Subject được gắn ở create/update qua findSubjectById()
         return entity;
     }
 
@@ -163,7 +168,6 @@ public class ClassService {
         dto.setSchedule(entity.getSchedule());
         dto.setTeacherId(entity.getTeacherId());
 
-        // 3 field mới
         dto.setDayOfWeek(entity.getDayOfWeek());
         dto.setStartTime(entity.getStartTime());
         dto.setEndTime(entity.getEndTime());
