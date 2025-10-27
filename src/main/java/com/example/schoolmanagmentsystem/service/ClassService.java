@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,46 +20,34 @@ import java.util.stream.Collectors;
 @Service
 public class ClassService {
 
-    @Autowired
-    private ClassRepository classRepository;
-
-    @Autowired
-    private SubjectRepository subjectRepository;
-
-    @Autowired
-    private StudentService studentService;
+    @Autowired private ClassRepository classRepository;
+    @Autowired private SubjectRepository subjectRepository;
+    @Autowired private StudentService studentService;
 
     /* ==================== CREATE ==================== */
     @Transactional
     public ClassDTO createClass(ClassDTO classDTO) {
-        validate(classDTO, null); // kiểm tra chồng lấn trước khi lưu
+        validate(classDTO, null);
         Class entity = convertToEntity(classDTO);
 
-        // gắn Subject nếu có
         if (classDTO.getSubjectId() != null) {
-            Subject subject = findSubjectById(classDTO.getSubjectId());
-            entity.setSubject(subject);
+            entity.setSubject(findSubjectById(classDTO.getSubjectId()));
         }
 
-        Class saved = classRepository.save(entity);
-        return convertToDTO(saved);
+        return convertToDTO(classRepository.save(entity));
     }
 
     /* ==================== READ ==================== */
     public List<ClassDTO> getAllClasses() {
-        return classRepository.findAll()
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return classRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public ClassDTO getClassById(Long id) {
-        Class entity = findClassById(id);
-        return convertToDTO(entity);
+        return convertToDTO(findClassById(id));
     }
 
     public List<StudentDTO> getStudentsByClassId(Long classId) {
-        findClassById(classId); // Check if class exists
+        findClassById(classId);
         return studentService.getStudentsByClassId(classId);
     }
 
@@ -75,32 +64,26 @@ public class ClassService {
     /* ==================== UPDATE ==================== */
     @Transactional
     public ClassDTO updateClass(Long id, ClassDTO classDTO) {
-        // validate trước (excludeId = id để bỏ qua chính nó)
         validate(classDTO, id);
 
         Class existing = findClassById(id);
-
-        // cập nhật thuộc tính cơ bản
         existing.setSemester(classDTO.getSemester());
         existing.setAcademicYear(classDTO.getAcademicYear());
         existing.setRoom(classDTO.getRoom());
         existing.setSchedule(classDTO.getSchedule());
         existing.setTeacherId(classDTO.getTeacherId());
 
-        // các field kiểm tra giờ
-        existing.setDayOfWeek(classDTO.getDayOfWeek());
+        existing.setStudyDate(classDTO.getStudyDate());
         existing.setStartTime(classDTO.getStartTime());
         existing.setEndTime(classDTO.getEndTime());
 
         if (classDTO.getSubjectId() != null) {
-            Subject subject = findSubjectById(classDTO.getSubjectId());
-            existing.setSubject(subject);
+            existing.setSubject(findSubjectById(classDTO.getSubjectId()));
         } else {
             existing.setSubject(null);
         }
 
-        Class updated = classRepository.save(existing);
-        return convertToDTO(updated);
+        return convertToDTO(classRepository.save(existing));
     }
 
     /* ==================== DELETE ==================== */
@@ -113,9 +96,8 @@ public class ClassService {
 
     /* ==================== VALIDATION ==================== */
     private void validate(ClassDTO dto, Long excludeId) {
-        // 1) Kiểm tra input bắt buộc
-        if (dto.getDayOfWeek() == null)
-            throw new IllegalArgumentException("Thiếu 'dayOfWeek' (1..7)");
+        if (dto.getStudyDate() == null)
+            throw new IllegalArgumentException("Thiếu 'studyDate'");
         if (dto.getStartTime() == null || dto.getEndTime() == null)
             throw new IllegalArgumentException("Thiếu 'startTime' hoặc 'endTime'");
         if (dto.getRoom() == null || dto.getRoom().isBlank())
@@ -127,27 +109,24 @@ public class ClassService {
 
         LocalTime start = dto.getStartTime();
         LocalTime end   = dto.getEndTime();
-
-        // 2) start < end
         if (!start.isBefore(end)) {
             throw new IllegalArgumentException("Giờ bắt đầu phải trước giờ kết thúc");
         }
 
-        // 3) Kiểm tra chồng lấn (overlap) cùng phòng/ngày/năm/kỳ
-        boolean overlapped = classRepository.existsOverlap(
+        boolean overlapped = classRepository.existsOverlapByDate(
                 dto.getRoom(),
-                dto.getDayOfWeek(),
+                dto.getStudyDate(),
                 dto.getAcademicYear(),
                 dto.getSemester(),
                 start, end,
-                excludeId // null khi create, id khi update
+                excludeId
         );
 
         if (overlapped) {
             throw new RoomTimeConflictException(
-                    "Phòng %s đã có lớp trong khoảng %s–%s (ngày %d, %s, %s)"
-                            .formatted(dto.getRoom(), start, end,
-                                    dto.getDayOfWeek(), dto.getSemester(), dto.getAcademicYear()));
+                    "Phòng %s đã có lớp trong khoảng %s–%s (ngày %s, %s, %s)"
+                            .formatted(dto.getRoom(), start, end, dto.getStudyDate(),
+                                    dto.getSemester(), dto.getAcademicYear()));
         }
     }
 
@@ -160,11 +139,9 @@ public class ClassService {
         entity.setSchedule(dto.getSchedule());
         entity.setTeacherId(dto.getTeacherId());
 
-        entity.setDayOfWeek(dto.getDayOfWeek());
+        entity.setStudyDate(dto.getStudyDate());
         entity.setStartTime(dto.getStartTime());
         entity.setEndTime(dto.getEndTime());
-
-        // Subject được gắn ở create/update qua findSubjectById()
         return entity;
     }
 
@@ -177,7 +154,7 @@ public class ClassService {
         dto.setSchedule(entity.getSchedule());
         dto.setTeacherId(entity.getTeacherId());
 
-        dto.setDayOfWeek(entity.getDayOfWeek());
+        dto.setStudyDate(entity.getStudyDate());
         dto.setStartTime(entity.getStartTime());
         dto.setEndTime(entity.getEndTime());
 
