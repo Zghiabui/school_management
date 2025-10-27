@@ -48,6 +48,12 @@ public class TeacherController {
         return ResponseEntity.ok(teachers);
     }
 
+    @GetMapping("/subject/{subjectId}")
+    public ResponseEntity<List<TeacherDTO>> getTeachersBySubjectId(@PathVariable Long subjectId) {
+        List<TeacherDTO> teachers = teacherService.getTeachersBySubjectId(subjectId);
+        return ResponseEntity.ok(teachers);
+    }
+
     @PutMapping("{id}")
     public ResponseEntity<TeacherDTO> updateTeacher(@PathVariable("id") Long teacherId, @Valid @RequestBody TeacherDTO teacherDTO) {
         TeacherDTO updatedTeacher = teacherService.updateTeacher(teacherId, teacherDTO);
