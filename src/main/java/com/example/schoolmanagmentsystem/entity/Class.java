@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
@@ -40,8 +41,8 @@ public class Class {
 
     // ====== 3 cột MỚI để kiểm tra trùng/chồng lấn ======
     @NotNull(message = "Thiếu thứ trong tuần")
-    @Column(name = "day_of_week", nullable = false)   // 1=Mon .. 7=Sun (hoặc 2=Thứ 2..7=CN)
-    private Integer dayOfWeek;
+    @Column(nullable = false)
+    private LocalDate studyDate;
 
     @NotNull(message = "Thiếu giờ bắt đầu")
     @Column(name = "start_time", nullable = false)
