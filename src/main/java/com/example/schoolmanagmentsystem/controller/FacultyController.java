@@ -1,7 +1,6 @@
 package com.example.schoolmanagmentsystem.controller;
 
 import com.example.schoolmanagmentsystem.dto.FacultyDTO;
-// import com.example.schoolmanagmentsystem.entity.Faculty; // (Không cần import này)
 import com.example.schoolmanagmentsystem.service.FacultyService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,8 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/faculties") // <-- LỖI CHÍNH ĐÃ SỬA
-@CrossOrigin(origins = "http://localhost:3000") // Đảm bảo React của bạn chạy ở port 3000
+@RequestMapping("/faculties")
+@CrossOrigin(origins = "http://localhost:3000")
 public class FacultyController {
 
     @Autowired
@@ -27,7 +26,7 @@ public class FacultyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FacultyDTO>> getAllFaculties() { // <-- Nên trả về ResponseEntity
+    public ResponseEntity<List<FacultyDTO>> getAllFaculties() {
         return ResponseEntity.ok(facultyService.getAllFaculty());
     }
 
@@ -37,15 +36,14 @@ public class FacultyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FacultyDTO> updateFaculty(@PathVariable Long id,
-                                                    @Valid @RequestBody FacultyDTO facultyDTO) { // <-- THÊM @Valid
+    public ResponseEntity<FacultyDTO> updateFaculty(@PathVariable Long id, @Valid @RequestBody FacultyDTO facultyDTO) {
         FacultyDTO updatedFaculty = facultyService.updateFaculty(id, facultyDTO);
         return ResponseEntity.ok(updatedFaculty);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<FacultyDTO> deleteFaculty(@PathVariable Long id) { // <-- SỬA: Trả về DTO
+    public ResponseEntity<FacultyDTO> deleteFaculty(@PathVariable Long id) {
         FacultyDTO deletedFaculty = facultyService.deleteFaculty(id);
-        return ResponseEntity.ok(deletedFaculty); // <-- SỬA: Trả về đối tượng đã xóa
+        return ResponseEntity.ok(deletedFaculty);
     }
 }
