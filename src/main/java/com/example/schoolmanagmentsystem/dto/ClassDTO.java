@@ -3,6 +3,7 @@ package com.example.schoolmanagmentsystem.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
@@ -18,9 +19,7 @@ public class ClassDTO {
     private Long subjectId;
     private String subjectName;     // tiện hiển thị FE
 
-    // ===== Thêm 3 field mới để chống trùng giờ =====
-    // 1 = Monday (hoặc 2 = Thứ 2 tùy quy ước của bạn)
-    private Integer dayOfWeek;
+    private LocalDate studyDate;
 
     // Nhận chuỗi "HH:mm" hoặc "HH:mm:ss" từ FE → parse thành LocalTime
     @JsonFormat(pattern = "HH:mm[:ss]")
