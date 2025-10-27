@@ -25,6 +25,13 @@ public class FacultyService {
             throw new DuplicateDataException("Tên khoa '" + facultyDTO.getFacultyName() + "' đã tồn tại!");
         }
 
+        if (facultyRepository.existsByEmail(facultyDTO.getEmail())) {
+            throw new DuplicateDataException("Email '" + facultyDTO.getEmail() + "' đã tồn tại!");
+        }
+        if (facultyRepository.existsByPhone(facultyDTO.getPhone())) {
+            throw new DuplicateDataException("SĐT '" + facultyDTO.getPhone() + "' đã tồn tại!");
+        }
+
         Faculty faculty = convertToEntity(facultyDTO);
         Faculty savedFaculty = facultyRepository.save(faculty);
         return convertToDTO(savedFaculty);
@@ -56,9 +63,21 @@ public class FacultyService {
         if (facultyDTO.getFacultyName() != null &&
                 !Objects.equals(existingFaculty.getFacultyName(), facultyDTO.getFacultyName()) &&
                 facultyRepository.existsByFacultyName(facultyDTO.getFacultyName())) {
-
             throw new DuplicateDataException("Tên khoa '" + facultyDTO.getFacultyName() + "' đã tồn tại!");
         }
+
+        if (!Objects.equals(existingFaculty.getEmail(), facultyDTO.getEmail()) &&
+                facultyRepository.existsByEmail(facultyDTO.getEmail())) {
+            // Dùng existsByEmailAndFacultyIdNot(facultyDTO.getEmail(), id) sẽ an toàn hơn
+            throw new DuplicateDataException("Email '" + facultyDTO.getEmail() + "' đã tồn tại!");
+        }
+
+        if (!Objects.equals(existingFaculty.getPhone(), facultyDTO.getPhone()) &&
+                facultyRepository.existsByPhone(facultyDTO.getPhone())) {
+            // Dùng existsByPhoneAndFacultyIdNot(facultyDTO.getPhone(), id) sẽ an toàn hơn
+            throw new DuplicateDataException("SĐT '" + facultyDTO.getPhone() + "' đã tồn tại!");
+        }
+
         existingFaculty.setFacultyName(facultyDTO.getFacultyName());
         existingFaculty.setDean(facultyDTO.getDean());
         existingFaculty.setPhone(facultyDTO.getPhone());
