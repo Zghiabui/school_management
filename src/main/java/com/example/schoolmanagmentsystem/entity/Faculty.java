@@ -26,15 +26,19 @@ public class Faculty {
     private String dean;
 
     @Pattern(regexp = "^0\\d{9}$", message = "Phone must be 10 digits and start is 0")
+    @Column(unique = true)
     private String phone;
 
     @Email(message = "Email should be valid")
+    @Column(unique = true)
     private String email;
 
+    @NotBlank(message = "Description is required")
     @Size(max = 255, message = "Description must be less than 255 characters")
     private String description;
 
     @NotBlank(message = "Address is required")
+    @Size(max = 200, message = "address must be less than 255 characters")
     private String address;
 
 
