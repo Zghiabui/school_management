@@ -2,10 +2,13 @@ package com.example.schoolmanagmentsystem.service;
 
 import com.example.schoolmanagmentsystem.dto.TeacherDTO;
 import com.example.schoolmanagmentsystem.entity.Faculty;
+import com.example.schoolmanagmentsystem.entity.Subject;
 import com.example.schoolmanagmentsystem.entity.Teacher;
 import com.example.schoolmanagmentsystem.repository.FacultyRepository;
+import com.example.schoolmanagmentsystem.repository.SubjectRepository;
 import com.example.schoolmanagmentsystem.repository.TeacherRepository;
 import com.example.schoolmanagmentsystem.specification.TeacherSpecification;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,9 @@ public class TeacherService {
 
     @Autowired
     private FacultyRepository facultyRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
 
     public TeacherDTO createTeacher(TeacherDTO teacherDTO) {
         Teacher teacher = convertToEntity(teacherDTO);
@@ -72,6 +78,19 @@ public class TeacherService {
     public List<TeacherDTO> searchTeachers(String name, String email, Long facultyId) {
         Specification<Teacher> spec = TeacherSpecification.search(name, email, facultyId);
         return teacherRepository.findAll(spec).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<TeacherDTO> getTeachersBySubjectId(Long subjectId) {
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new EntityNotFoundException("Subject not found with id: " + subjectId));
+        Faculty faculty = subject.getFaculty();
+        if (faculty == null) {
+            throw new EntityNotFoundException("Faculty not found for the given subject");
+        }
+        List<Teacher> teachers = teacherRepository.findByFaculty(faculty);
+        return teachers.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
