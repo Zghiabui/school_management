@@ -1,6 +1,7 @@
 package com.example.schoolmanagmentsystem.controller;
 
 import com.example.schoolmanagmentsystem.dto.ClassDTO;
+import com.example.schoolmanagmentsystem.dto.StudentDTO;
 import com.example.schoolmanagmentsystem.service.ClassService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,12 @@ public class ClassController {
     public ResponseEntity<ClassDTO> getClassById(@PathVariable Long id) {
         ClassDTO classDTO = classService.getClassById(id);
         return new ResponseEntity<>(classDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/{classId}/students")
+    public ResponseEntity<List<StudentDTO>> getStudentsByClassId(@PathVariable Long classId) {
+        List<StudentDTO> students = classService.getStudentsByClassId(classId);
+        return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")

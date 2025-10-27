@@ -1,6 +1,7 @@
 package com.example.schoolmanagmentsystem.service;
 
 import com.example.schoolmanagmentsystem.dto.ClassDTO;
+import com.example.schoolmanagmentsystem.dto.StudentDTO;
 import com.example.schoolmanagmentsystem.entity.Class;
 import com.example.schoolmanagmentsystem.entity.Subject;
 import com.example.schoolmanagmentsystem.exception.RoomTimeConflictException;
@@ -23,6 +24,9 @@ public class ClassService {
 
     @Autowired
     private SubjectRepository subjectRepository;
+
+    @Autowired
+    private StudentService studentService;
 
     /* ==================== CREATE ==================== */
     @Transactional
@@ -51,6 +55,11 @@ public class ClassService {
     public ClassDTO getClassById(Long id) {
         Class entity = findClassById(id);
         return convertToDTO(entity);
+    }
+
+    public List<StudentDTO> getStudentsByClassId(Long classId) {
+        findClassById(classId); // Check if class exists
+        return studentService.getStudentsByClassId(classId);
     }
 
     private Class findClassById(Long id) {
