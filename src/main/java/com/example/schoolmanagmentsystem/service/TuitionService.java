@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,23 +23,25 @@ public class TuitionService {
     @Autowired
     private StudentRepository studentRepository;
 
+    /* ==================== CREATE ==================== */
     @Transactional
     public TuitionDTO createTuition(TuitionDTO tuitionDTO) {
         Student student = findStudentById(tuitionDTO.getStudentId());
+
         tuitionRepository.findByStudentAndSemester(student, tuitionDTO.getSemester())
                 .ifPresent(t -> {
                     throw new DuplicateDataException("Học phí cho sinh viên này trong học kỳ này đã tồn tại!");
                 });
 
         Tuition tuition = convertToEntity(tuitionDTO);
-        if (tuitionDTO.getStudentId() != null) {
-            tuition.setStudent(student);
-        }
+        tuition.setStudent(student);
+        tuition.setStudentCode(student.getStudentCode());
 
         Tuition saved = tuitionRepository.save(tuition);
         return convertToDTO(saved);
     }
 
+    /* ==================== READ ==================== */
     public List<TuitionDTO> getAllTuitions() {
         return tuitionRepository.findAll()
                 .stream()
@@ -53,16 +54,7 @@ public class TuitionService {
         return convertToDTO(tuition);
     }
 
-    private Tuition findTuitionById(Long id) {
-        return tuitionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy học phí với ID: " + id));
-    }
-
-    private Student findStudentById(Long id) {
-        return studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sinh viên với ID: " + id));
-    }
-
+    /* ==================== UPDATE ==================== */
     @Transactional
     public TuitionDTO updateTuition(Long id, TuitionDTO dto) {
         Tuition existing = findTuitionById(id);
@@ -77,19 +69,17 @@ public class TuitionService {
 
         existing.setSemester(dto.getSemester());
         existing.setAmount(dto.getAmount());
-        existing.setPaymentDate(dto.getPaymentDate());
+        existing.setStartDate(dto.getStartDate());
+        existing.setEndDate(dto.getEndDate());
         existing.setStatus(dto.getStatus());
-
-        if (dto.getStudentId() != null) {
-            existing.setStudent(student);
-        } else {
-
-        }
+        existing.setStudent(student);
+        existing.setStudentCode(student.getStudentCode());
 
         Tuition updated = tuitionRepository.save(existing);
         return convertToDTO(updated);
     }
 
+    /* ==================== DELETE ==================== */
     @Transactional
     public TuitionDTO deleteTuition(Long id) {
         Tuition tuition = findTuitionById(id);
@@ -97,12 +87,23 @@ public class TuitionService {
         return convertToDTO(tuition);
     }
 
+    /* ==================== HELPERS ==================== */
+    private Tuition findTuitionById(Long id) {
+        return tuitionRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy học phí với ID: " + id));
+    }
+
+    private Student findStudentById(Long id) {
+        return studentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sinh viên với ID: " + id));
+    }
 
     private Tuition convertToEntity(TuitionDTO dto) {
         Tuition tuition = new Tuition();
         tuition.setSemester(dto.getSemester());
         tuition.setAmount(dto.getAmount());
-        tuition.setPaymentDate(dto.getPaymentDate());
+        tuition.setStartDate(dto.getStartDate());
+        tuition.setEndDate(dto.getEndDate());
         tuition.setStatus(dto.getStatus());
         return tuition;
     }
@@ -110,10 +111,11 @@ public class TuitionService {
     private TuitionDTO convertToDTO(Tuition tuition) {
         TuitionDTO dto = new TuitionDTO();
         dto.setTuitionId(tuition.getTuitionId());
-        dto.setStudentCode(tuition.getStudent().getStudentCode());
+        dto.setStudentCode(tuition.getStudentCode());
         dto.setSemester(tuition.getSemester());
         dto.setAmount(tuition.getAmount());
-        dto.setPaymentDate(tuition.getPaymentDate());
+        dto.setStartDate(tuition.getStartDate());
+        dto.setEndDate(tuition.getEndDate());
         dto.setStatus(tuition.getStatus());
         if (tuition.getStudent() != null) {
             dto.setStudentId(tuition.getStudent().getStudentId());

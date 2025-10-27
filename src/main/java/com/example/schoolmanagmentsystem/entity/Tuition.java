@@ -14,11 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
@@ -46,18 +42,28 @@ public class Tuition {
     @Column(name = "amount", precision = 12, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    @NotNull(message = "Ngày đóng không được để trống")
-    @Column(name = "payment_date", nullable = false)
-    private LocalDate paymentDate;
+    @NotNull(message = "Ngày bắt đầu không được để trống")
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
+    @NotNull(message = "Ngày kết thúc không được để trống")
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
 
     @NotNull(message = "Trạng thái không được để trống")
     @Column(length = 20, nullable = false)
-    @Enumerated(EnumType.STRING) // Lưu tên enum dạng text vào DB
-    private PaymentStatus status; // PAID, UNPAID, PARTIAL
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
 
-
-    // Quan hệ với Student (optional để tránh circular dependency)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     private Student student;
+
+    // Validate logic: endDate >= startDate
+    @AssertTrue(message = "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu")
+    private boolean isDateRangeValid() {
+        if (startDate == null || endDate == null) return true; // để @NotNull lo
+        return !endDate.isBefore(startDate);
+    }
 }
+
