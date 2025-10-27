@@ -75,6 +75,13 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
+    public List<StudentDTO> getStudentsByClassId(Long classId) {
+        return studentRepository.findByClazz_ClassId(classId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 
     private Student convertToEntity(StudentDTO dto) {
         Student student = new Student();
