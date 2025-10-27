@@ -5,22 +5,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.schoolmanagmentsystem.dto.TuitionDTO;
 import com.example.schoolmanagmentsystem.service.TuitionService;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000")   // bật CORS cho FE
 @RestController
 @RequestMapping("/tuitions")
 public class TuitionController {
@@ -36,20 +28,18 @@ public class TuitionController {
 
     @GetMapping
     public ResponseEntity<List<TuitionDTO>> getAllTuitions() {
-        List<TuitionDTO> tuitions = tuitionService.getAllTuitions();
-        return new ResponseEntity<>(tuitions, HttpStatus.OK);
+        return new ResponseEntity<>(tuitionService.getAllTuitions(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TuitionDTO> getTuitionById(@PathVariable Long id) {
-        TuitionDTO tuition = tuitionService.getTuitionById(id);
-        return new ResponseEntity<>(tuition, HttpStatus.OK);
+        return new ResponseEntity<>(tuitionService.getTuitionById(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TuitionDTO> updateTuition(@PathVariable Long id, @Valid @RequestBody TuitionDTO tuitionDTO) {
-        TuitionDTO updatedTuition = tuitionService.updateTuition(id, tuitionDTO);
-        return new ResponseEntity<>(updatedTuition, HttpStatus.OK);
+    public ResponseEntity<TuitionDTO> updateTuition(@PathVariable Long id,
+                                                    @Valid @RequestBody TuitionDTO tuitionDTO) {
+        return new ResponseEntity<>(tuitionService.updateTuition(id, tuitionDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
