@@ -12,7 +12,7 @@ import com.example.schoolmanagmentsystem.service.TuitionService;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:3000")   // bật CORS cho FE
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/tuitions")
 public class TuitionController {

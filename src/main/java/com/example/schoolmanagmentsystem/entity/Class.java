@@ -17,29 +17,26 @@ public class Class {
     @Column(name = "class_id")              // map đúng cột PK
     private Long classId;
 
-    // nếu bạn có Subject entity
     @NotNull(message = "Môn học không được để trống")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
-    // Tạm để Long; nếu có Teacher entity, đổi sang @ManyToOne tương tự Subject
     @NotNull(message = "Mã giảng viên không được để trống")
     @Column(name = "teacher_id", nullable = false)
     private Long teacherId;
 
     @NotBlank(message = "Học kỳ không được để trống")
     @Column(length = 20)
-    private String semester;                // ví dụ: "hk1", "hk2" hoặc "1", "2"
+    private String semester;                // ví dụ: "Học kỳ 1", "Học kỳ 2"
 
     @NotBlank(message = "Năm học không được để trống")
     @Column(name = "academic_year", length = 20)
-    private String academicYear;            // ví dụ: "2024-2025" hoặc "2025"
+    private String academicYear;            // ví dụ: "2024-2025"
 
     @Column(length = 50)
     private String room;
 
-    // ====== 3 cột MỚI để kiểm tra trùng/chồng lấn ======
     @NotNull(message = "Thiếu thứ trong tuần")
     @Column(nullable = false)
     private LocalDate studyDate;
