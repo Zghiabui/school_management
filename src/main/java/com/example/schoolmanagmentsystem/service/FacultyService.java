@@ -67,14 +67,12 @@ public class FacultyService {
         }
 
         if (!Objects.equals(existingFaculty.getEmail(), facultyDTO.getEmail()) &&
-                facultyRepository.existsByEmail(facultyDTO.getEmail())) {
-            // Dùng existsByEmailAndFacultyIdNot(facultyDTO.getEmail(), id) sẽ an toàn hơn
+                facultyRepository.existsByEmailAndFacultyIdNot(facultyDTO.getEmail(), id )) {
             throw new DuplicateDataException("Email '" + facultyDTO.getEmail() + "' đã tồn tại!");
         }
 
         if (!Objects.equals(existingFaculty.getPhone(), facultyDTO.getPhone()) &&
-                facultyRepository.existsByPhone(facultyDTO.getPhone())) {
-            // Dùng existsByPhoneAndFacultyIdNot(facultyDTO.getPhone(), id) sẽ an toàn hơn
+                facultyRepository.existsByPhoneAndFacultyIdNot(facultyDTO.getPhone(), id)) {
             throw new DuplicateDataException("SĐT '" + facultyDTO.getPhone() + "' đã tồn tại!");
         }
 
