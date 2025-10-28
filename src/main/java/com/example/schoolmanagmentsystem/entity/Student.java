@@ -37,12 +37,12 @@ public class Student {
     private Faculty faculty;
 
     @Pattern(regexp = "^0\\d{9}$", message = "Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số")
-    @Column(length = 15)
+    @Column(length = 15, unique = true)
     private String phone;
 
     @Email(message = "Email không hợp lệ, vui lòng nhập đúng định dạng")
     @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
-    @Column(length = 100)
+    @Column(length = 100, unique = true)
     private String email;
 
     @ManyToOne

@@ -4,13 +4,17 @@ import com.example.schoolmanagmentsystem.dto.StudentDTO;
 import com.example.schoolmanagmentsystem.entity.Class;
 import com.example.schoolmanagmentsystem.entity.Faculty;
 import com.example.schoolmanagmentsystem.entity.Student;
+import com.example.schoolmanagmentsystem.exception.DuplicateDataException;
 import com.example.schoolmanagmentsystem.repository.ClassRepository;
 import com.example.schoolmanagmentsystem.repository.FacultyRepository;
 import com.example.schoolmanagmentsystem.repository.StudentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +29,17 @@ public class StudentService {
     @Autowired
     private ClassRepository classRepository;
 
+    @Transactional
     public StudentDTO createStudent(StudentDTO studentDTO) {
+        if (studentRepository.existsByStudentCode(studentDTO.getStudentCode())) {
+            throw new DuplicateDataException("Mã số sinh viên '" + studentDTO.getStudentCode() + "' đã tồn tại!");
+        }
+        if (studentRepository.existsByEmail(studentDTO.getEmail())) {
+            throw new DuplicateDataException("Email '" + studentDTO.getEmail() + "' đã tồn tại!");
+        }
+        if (studentRepository.existsByPhone(studentDTO.getPhone())) {
+            throw new DuplicateDataException("SĐT '" + studentDTO.getPhone() + "' đã tồn tại!");
+        }
         Student student = convertToEntity(studentDTO);
         Student savedStudent = studentRepository.save(student);
         return convertToDTO(savedStudent);
@@ -40,13 +54,26 @@ public class StudentService {
 
     public StudentDTO getStudentById(Long id) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sinh viên với ID: " + id));
         return convertToDTO(student);
     }
 
+    @Transactional
     public StudentDTO updateStudent(Long id, StudentDTO studentDTO) {
         Student existingStudent = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sinh viên với ID: " + id));
+        if (!Objects.equals(existingStudent.getStudentCode(), studentDTO.getStudentCode()) &&
+                studentRepository.existsByStudentCodeAndStudentIdNot(studentDTO.getStudentCode(), id)) {
+            throw new DuplicateDataException("Mã số sinh viên '" + studentDTO.getStudentCode() + "' đã tồn tại!");
+        }
+        if (!Objects.equals(existingStudent.getEmail(), studentDTO.getEmail()) &&
+                studentRepository.existsByEmailAndStudentIdNot(studentDTO.getEmail(), id)) {
+            throw new DuplicateDataException("Email '" + studentDTO.getEmail() + "' đã tồn tại!");
+        }
+        if (!Objects.equals(existingStudent.getPhone(), studentDTO.getPhone()) &&
+                studentRepository.existsByPhoneAndStudentIdNot(studentDTO.getPhone(), id)) {
+            throw new DuplicateDataException("SĐT '" + studentDTO.getPhone() + "' đã tồn tại!");
+        }
 
         // Cập nhật các trường
         existingStudent.setStudentCode(studentDTO.getStudentCode());
@@ -57,7 +84,7 @@ public class StudentService {
 
         if (studentDTO.getFacultyId() != null) {
             Faculty faculty = facultyRepository.findById(studentDTO.getFacultyId())
-                    .orElseThrow(() -> new RuntimeException("Faculty not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khoa với ID: " + studentDTO.getFacultyId()));
             existingStudent.setFaculty(faculty);
         }
 
@@ -71,8 +98,13 @@ public class StudentService {
         return convertToDTO(updatedStudent);
     }
 
-    public void deleteStudent(Long id) {
-        studentRepository.deleteById(id);
+    @Transactional
+    public StudentDTO deleteStudent(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sinh viên với ID: " + id));
+
+        studentRepository.delete(student);
+        return convertToDTO(student);
     }
 
     public List<StudentDTO> getStudentsByClassId(Long classId) {
@@ -90,8 +122,10 @@ public class StudentService {
         student.setDateOfBirth(dto.getDateOfBirth());
         if (dto.getFacultyId() != null) {
             Faculty faculty = facultyRepository.findById(dto.getFacultyId())
-                    .orElseThrow(() -> new RuntimeException("Faculty not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy khoa với ID: " + dto.getFacultyId()));
             student.setFaculty(faculty);
+        }else {
+            throw new IllegalArgumentException("Faculty ID không được null");
         }
         if (dto.getClassId() != null) {
             Class clazz = classRepository.findById(dto.getClassId())
@@ -115,7 +149,7 @@ public class StudentService {
         }
         if (student.getClazz() != null) {
             dto.setClassId(student.getClazz().getClassId());
-            dto.setClassName(student.getClazz().getSubject().getSubjectName()); // Corrected field name
+            dto.setClassName(student.getClazz().getSubject().getSubjectName());
         }
         dto.setPhone(student.getPhone());
         dto.setEmail(student.getEmail());
