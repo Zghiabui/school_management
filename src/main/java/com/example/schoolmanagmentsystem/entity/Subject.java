@@ -22,6 +22,7 @@ public class Subject {
     @Max(value = 10, message = "Số tín chỉ phải <= 10")
     private Integer credits;
 
+    @NotNull(message = "mô tả không được để trống")
     @Size(max = 255, message = "Mô tả phải ít hơn 255 ký tự")
     private String description;
 

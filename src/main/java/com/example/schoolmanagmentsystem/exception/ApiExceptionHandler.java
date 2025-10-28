@@ -93,7 +93,7 @@ public class ApiExceptionHandler {
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDatabaseConflict(DataIntegrityViolationException ex) {
-        String message = "Lỗi ràng buộc dữ liệu. Có thể bạn đang cố tạo trùng lặp một giá trị đã tồn tại.";
+        String message = "Lỗi ràng buộc dữ liệu. Có thể bạn đang cố xóa dữ liệu có phụ thuộc từ nơi khác.";
         // Lấy thông điệp lỗi cụ thể nhất từ DB
         String mostSpecificCauseMessage = ex.getMostSpecificCause().getMessage();
         log.warn("Data integrity violation: {}", mostSpecificCauseMessage);
